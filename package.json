@@ -1,0 +1,6 @@
+{
+    "bundleDependencies": false,
+    "description": "multiselect fork for elm",
+    "name": "elm-multiselect",
+    "version": "3.0.4"
+}
