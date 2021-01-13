@@ -1,7 +1,7 @@
 {
     "type": "package",
-    "name": "inkuzmin/elm-multiselect",
-    "summary": "multiselect control",
+    "name": "sirstrahd/elm-multiselect",
+    "summary": "multiselect control, forked from inkuzmin/elm-multiselect",
     "license": "BSD-3-Clause",
     "version": "3.0.3",
     "exposed-modules": [

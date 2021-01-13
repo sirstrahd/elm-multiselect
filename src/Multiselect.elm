@@ -246,7 +246,7 @@ update msg (Model model) =
             if model.protected then
                 ( Model model, Cmd.none, Nothing )
             else
-                ( Model { model | status = Opened, protected = True }
+                ( Model { model | protected = True }
                 , Cmd.batch
                     [ Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
                     , delayInMs 100 <| DisableProtection
