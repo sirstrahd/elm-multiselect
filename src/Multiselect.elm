@@ -1,5 +1,5 @@
 module Multiselect exposing
-    ( initModel, getSelectedValues, populateValues
+    ( initModel, getSelectedValues, populateValues, close
     , Model
     , Msg
     , OutMsg(..)
@@ -61,7 +61,7 @@ import Html.Styled
         , span
         , text
         )
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, attribute)
 import Html.Styled.Events exposing (onClick)
 import Json.Decode exposing (Decoder)
 import Json.Encode as Encode
@@ -161,6 +161,8 @@ clearInputText (Model model) =
     , Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
     )
 
+close : Model -> Model
+close (Model model) = Model {model | status = Closed}
 
 filter : List ( String, String ) -> List ( String, String ) -> List ( String, String )
 filter selected values =
@@ -352,12 +354,7 @@ update msg (Model model) =
                 , filtered = filtered
                 , hovered = nextSelectedItem model.filtered item
                 , input = invisibleCharacter
-                , status =
-                    if List.isEmpty filtered then
-                        Closed
-
-                    else
-                        Opened
+                , status = Closed
               }
             , Cmd.batch
                 [ Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
@@ -872,7 +869,7 @@ clear (Model model) =
             [ css [ SelectCss.clearWrap ]
             , onClickNoDefault Clear
             ]
-            [ div [ css [ SelectCss.clear ] ] [ text "×" ] ]
+            [ div [ css [ SelectCss.clear ]] [ div [attribute "tooltip" "Clear all the selected entries"] [text "×"] ] ]
 
     else
         div [] []
