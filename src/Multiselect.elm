@@ -62,7 +62,7 @@ import Html.Styled
         , text
         )
 import Html.Styled.Attributes exposing (css, attribute)
-import Html.Styled.Events exposing (onClick, onBlur)
+import Html.Styled.Events exposing (onClick)
 import Json.Decode exposing (Decoder)
 import Json.Encode as Encode
 import Multiselect.Keycodes as Keycodes
@@ -89,7 +89,6 @@ type Status
 -}
 type Model = Model
     { status : Status
-    , pendingClose : Bool
     , values : List ( String, String )
     , filtered : List ( String, String )
     , selected : List ( String, String )
@@ -113,7 +112,6 @@ initModel : List ( String, String ) -> String -> Model
 initModel values tag1 =
     Model
         { status = Closed
-        , pendingClose = False
         , values = values
         , filtered = values
         , selected = []
@@ -190,7 +188,6 @@ type Msg
     | ScrollResult (Result Dom.Error ())
     | Filter String
     | Adjust Float
-    | ManageBlur
     | OnHover ( String, String )
     | Shortcut Int
     | ScrollY (Result Dom.Error Float)
@@ -224,7 +221,7 @@ update msg (Model model) =
 
         Toggle ->
             if model.status == Opened then
-                ( Model { model | pendingClose = False, status = Closed }
+                ( Model { model | status = Closed }
                 , Cmd.batch
                     [ Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
                     ]
@@ -232,7 +229,7 @@ update msg (Model model) =
                 )
 
             else
-                ( Model { model | pendingClose = False, status = Opened }
+                ( Model { model | status = Opened }
                 , Cmd.batch
                     [ Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
                     ]
@@ -252,7 +249,7 @@ update msg (Model model) =
             if model.protected then
                 ( Model model, Cmd.none, Nothing )
             else
-                ( Model { model | pendingClose = False, protected = True }
+                ( Model { model | protected = True }
                 , Cmd.batch
                     [ Dom.focus ("multiselectInput" ++ model.tag) |> Task.attempt FocusResult
                     , delayInMs 100 <| DisableProtection
@@ -284,18 +281,6 @@ update msg (Model model) =
 
         Adjust value ->
             ( Model { model | inputWidth = value }, Cmd.none, Nothing )
-
-        ManageBlur ->
-            if model.pendingClose then
-                (Model model, Cmd.none, Nothing)
-            else
-                ( Model {model | pendingClose = True}, Task.perform (\_ -> CloseInput) (Process.sleep 100), Nothing )
-
-        CloseInput ->
-            if model.pendingClose then
-                ( Model {model | status = Closed, pendingClose = False}, Cmd.none, Nothing )
-            else
-                (Model model, Cmd.none, Nothing)
 
         Filter value ->
             let
@@ -777,7 +762,6 @@ input (Model model) =
             , onKeyDown Adjust
             , onKeyPress Shortcut
             , onKeyUp Filter
-            , onBlur ManageBlur
             , inputStyle
             , value
             ]
